@@ -1,11 +1,11 @@
-__all__ = ["remove_reflection", "gamma_correction", "contrast_stretching", "histogram_normalization",
-           "laplacian_filter", "save_image", "process_image"]
+__all__ = ["save_image", "process_image","gamma_correction", "laplacian_filter", "histogram_normalization", 
+           "contrast_stretching", "average_filter"]
 
-from .test import remove_reflection_test as remove_reflection
-from .gamma_correction import gamma_correction as gamma_correction
-from .contrast_stretching import contrast_stretching as contrast_stretching
-from .histogram_normalization import histogram_normalization as histogram_normalization
+from .gamma_correction import gamma_correction
 from .laplacian_filtering import laplacian_filter as laplacian_filter
+from .histogram_normalization import histogram_normalization
+from .contrast_stretching import contrast_stretching
+from .average_filtering import average_filter
 
 import cv2
 import os
