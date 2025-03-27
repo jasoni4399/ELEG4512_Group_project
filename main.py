@@ -1,12 +1,13 @@
 import cv2
 import os
 from processors import remove_reflection
+from processors import gamma_correction
 
 path = "inputs/blur_noisey_photo.jpg"
 def process_image(image_path):
     image = cv2.imread(image_path)
     
-    processed_image = remove_reflection(image)
+    processed_image = gamma_correction(image, 8)
     
     os.makedirs("outputs", exist_ok=True)
     
