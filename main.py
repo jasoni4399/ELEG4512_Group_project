@@ -8,9 +8,9 @@ from processors import process_image
 path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
-@process_image(image_path="laplacian_5x5")#file name to save the image
+@process_image(image_path="laplacian_3x3")#file name to save the image
 def main(image):
-    processed_image = processed_image = laplacian_filter(image, 5)
+    processed_image = processed_image = laplacian_filter(image, 3)
     return processed_image
 
 if __name__ == "__main__":
