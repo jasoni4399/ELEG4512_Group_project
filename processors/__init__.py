@@ -1,8 +1,15 @@
-__all__ = ["remove_reflection", "save_image", "process_image","gamma_correction", "laplacian_filter"]
+__all__ = ["remove_reflection",
+            "save_image",
+            "process_image",
+            "gamma_correction",
+            "laplacian_filter",
+            "rgb_laplacian_filter"
+            ]
 
 from .remove_reflection import remove_reflection_test as remove_reflection
 from .gamma_correction import gamma_correction
 from .laplacian_filtering import laplacian_filter as laplacian_filter
+from .laplacian_filtering import rgb_laplacian_filter as rgb_laplacian_filter
 
 import cv2
 import os
