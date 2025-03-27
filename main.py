@@ -2,20 +2,18 @@ import cv2
 import os
 from processors import remove_reflection
 from processors import gamma_correction
+from processors import save_image, process_image
 
+
+# make a decorator to time the function
 path = "inputs/blur_noisey_photo.jpg"
-def process_image(image_path):
-    image = cv2.imread(image_path)
-    
-    processed_image = gamma_correction(image, 10)
-    
-    os.makedirs("outputs", exist_ok=True)
-    
-    output_path = os.path.join("outputs", "output.jpg")
-    cv2.imwrite(output_path, processed_image)
-    
-    print(f"Processed image saved to: {output_path}")
+image = cv2.imread(path)
+
+@process_image(image_path="gamma_correction_10")
+def main(image):
+    processed_image = processed_image = gamma_correction(image, 10)
     return processed_image
 
+
 if __name__ == "__main__":
-    process_image(path)
+    main(image)
