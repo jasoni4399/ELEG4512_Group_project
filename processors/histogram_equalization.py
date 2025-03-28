@@ -10,7 +10,7 @@ def histogram_equalization(image):
     else:
         gray = image.copy()
     
-    equalized = cv2.equalizeHist(gray)
+    equalized = cv2.equalizeHist(gray/255.0) * 255.0
     
     return equalized
 
