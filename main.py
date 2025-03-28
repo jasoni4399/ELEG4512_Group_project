@@ -81,7 +81,7 @@ def main(image):
 
     processed = laplacian_filter(image, kernel_size=5)
 
-    return time
+    return final
 
 
 
