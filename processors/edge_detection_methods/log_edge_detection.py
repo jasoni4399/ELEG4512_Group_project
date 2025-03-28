@@ -6,7 +6,7 @@ def log_edge_detection(
     img, 
     ksize: int = 5, 
     sigma: float = 1.0, 
-    normalize=True,
+    normalize: bool = True,
     show_result: bool = False,
     window_size: tuple[int, int] = (10, 6),
     dpi: int = 100 
@@ -21,8 +21,6 @@ def log_edge_detection(
     
     if normalize:
         edges = cv2.normalize(edges, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
-    else:
-        edges = edges
 
     if show_result:
         display(edges, title='Log Edge Detection', window_size=window_size, dpi=dpi)

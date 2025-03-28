@@ -10,9 +10,9 @@ image = cv2.imread(path)
 def main(image):
 
     outputs = generate_reflection_mask(image, kernal_size=5, threshold=145)
-    laplacian = laplacian_filter(outputs, kernel_size=5)
+    lap = laplacian(image, ksize=5)
     gamma = gamma_correction(image, 10)
-    laplacian_iamge = laplacian_filter(image, kernel_size=5)
+    laplacian_iamge = laplacian(image, ksize=5)
     time = cv2.subtract(gamma, outputs)
     canny = cv2.Canny(gamma, 150, 200)
     kernel_h = np.array([[1, 1, 1, 1, 1]], dtype=np.uint8)
@@ -20,11 +20,11 @@ def main(image):
     kernel_v = np.array([[1], [1], [1], [1], [1]], dtype=np.uint8)
 
     # 水平線強化
-    dilated_h_1 = cv2.dilate(laplacian, kernel_h, iterations=1)
+    dilated_h_1 = cv2.dilate(lap, kernel_h, iterations=1)
     dilated_h = cv2.dilate(canny, kernel_h, iterations=1)
     dilated_h_2 = cv2.dilate(laplacian_iamge, kernel_h, iterations=1)
     # 垂直線強化
-    dilated_v_1 = cv2.dilate(laplacian, kernel_v, iterations=1)
+    dilated_v_1 = cv2.dilate(lap, kernel_v, iterations=1)
     dilated_v = cv2.dilate(canny, kernel_v, iterations=1)
     dilated_v_2 = cv2.dilate(laplacian_iamge, kernel_h, iterations=1)
     # 合併結果

@@ -11,11 +11,11 @@ show_result = False
 @process_image(image_path="edge_detection_outputs/fft_400")#file name to save the image
 def main(image):
 
-    #output = sobel(image, ksize=5, dx=1, dy=1, normalize=True, show_result=show_result)
-    #output = laplacian(image, ksize=5, normalize=True, show_result=show_result)
-    #output = LoG(image, ksize=5, sigma=5, normalize=False, show_result=show_result)
-    #output = canny(image, threshold1=100, threshold2=300, apertureSize=3, normalize=True, show_result=show_result)
-    #output = morphologyEx(image, ksize=5, normalize=True, show_result=show_result)
+    output = sobel(image, ksize=5, dx=1, dy=1, normalize=True, show_result=show_result)
+    output = laplacian(image, ksize=5, normalize=True, show_result=show_result)
+    output = LoG(image, ksize=5, sigma=5, normalize=False, show_result=show_result)
+    output = canny(image, threshold1=100, threshold2=300, apertureSize=3, normalize=True, show_result=show_result)
+    output = morphologyEx(image, ksize=5, normalize=True, show_result=show_result)
     output = fft(image, radius=400, normalize=False, show_result=show_result)
 
     return output
