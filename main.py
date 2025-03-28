@@ -12,6 +12,7 @@ def main(image):
     outputs = generate_reflection_mask(image, kernal_size=5, threshold=145)
     laplacian = laplacian_filter(outputs, kernel_size=5)
     gamma = gamma_correction(image, 10)
+    time = cv2.subtract(gamma, outputs)
     canny = cv2.Canny(gamma, 150, 200)
     kernel_h = np.array([[1, 1, 1, 1, 1]], dtype=np.uint8)
     # 垂直方向連接 (強化垂直線)
@@ -52,12 +53,27 @@ def main(image):
     
     
 
-    laplacian3_3channel = cv2.cvtColor(laplacian3, cv2.COLOR_GRAY2BGR)
+
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))  # 橢圓形核
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(laplacian3, 4)
+
+    # 創建遮罩：只保留面積大於閾值的區域
+    min_area = 10000  # 最小像素面積
+    mask = np.zeros_like(laplacian3)
+    for i in range(1, num_labels):
+        if stats[i, cv2.CC_STAT_AREA] > min_area:
+            mask[labels == i] = 255
+
+    # 可選：用膨脹恢復部分形狀
+    final = cv2.dilate(mask, kernel, iterations=1)
+
+    laplacian3_3channel = cv2.cvtColor(final, cv2.COLOR_GRAY2BGR)
     red_edges = np.zeros_like(laplacian3_3channel)
     red_edges[:,:,2] = 255  # BGR中的R通道設為255（紅色）
 
     # 3. 創建掩模（非黑像素的位置）
-    mask = cv2.threshold(laplacian3, 1, 255, cv2.THRESH_BINARY)[1]  # 大於0的像素設為255
+    mask = cv2.threshold(final, 1, 255, cv2.THRESH_BINARY)[1]  # 大於0的像素設為255
 
     # 4. 將紅色邊緣應用到原圖
     final = image.copy()
@@ -65,7 +81,9 @@ def main(image):
 
     processed = laplacian_filter(image, kernel_size=5)
 
-    return processed
+    return time
+
+
 
 if __name__ == "__main__":
     main(image)
