@@ -19,7 +19,7 @@ def main(image):
     print("compactness: ", compactness)
     print("labels: ", labels)
     print("centers: ", centers)
-    center = np.uint8(center)
+    center = np.uint8(centers)
     res = center[labels.flatten()]
     res2 = res.reshape((image.shape))
     return res2
