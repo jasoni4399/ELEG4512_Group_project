@@ -15,7 +15,7 @@ def main(image):
     Z = image.reshape((-1,3))
     Z = np.float32(Z)
     # apply kmeans clustering
-    compactness,labels,centers = cv2.kmeans(Z, 5, None, criteria, 10, flags)
+    compactness,labels,centers = cv2.kmeans(Z, 3, None, criteria, 10, flags)
     print("compactness: ", compactness)
     print("labels: ", labels)
     print("centers: ", centers)
