@@ -61,8 +61,8 @@ def main(image):
     # 4. 將紅色邊緣應用到原圖
     final = image.copy()
     final[mask > 0] = red_edges[mask > 0]
-
-    return laplacian3
+    
+    return final
 
 
 
