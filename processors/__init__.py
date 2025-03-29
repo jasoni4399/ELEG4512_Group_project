@@ -33,71 +33,86 @@ def process_image(image_path):
 #so that user can change the parameters in real time
 def testing(func):
     def wrapper(*args, **kwargs):
-        # Set the function to be traced
-        # Get the local variables of the function
-        captured_locals = {}  # Use a mutable object to avoid scoping issues
+        captured_locals = {}
+        current_param = None
+        input_value = ''
 
-        # Define the tracer function
+        # Tracer function to capture locals
         def tracer(frame, event, arg):
             if event == "return":
-                # Capture the locals when the function returns
                 captured_locals.update(frame.f_locals.copy())
-            return tracer  # Return itself to keep tracing active
+            return tracer
 
-        # Activate the tracer
+        # Initial function execution
         sys.settrace(tracer)
         try:
             image = func(*args, **kwargs)
         finally:
-            sys.settrace(None)  # Ensure tracing is disabled
-        # Find parameters starting with "param_"
+            sys.settrace(None)
+
         params = {k: v for k, v in captured_locals.items() if k.startswith("param_")}
-        # Create a window with a trackbar for each parameter
-        cv2.namedWindow("Image")
-        #set screen size
+        param_list = list(params.keys())
+        
+        cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
         cv2.resizeWindow("Image", 800, 600)
-        #allow user change window size
-        cv2.resizeWindow("Image", 800, 600)
-        cv2.setWindowProperty("Image", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_KEEPRATIO)
-        for param in params:
-            # Create a trackbar for each parameter
-            cv2.createTrackbar(param, "Image", 0, 255, lambda x: None)
-            # Set the initial value of the trackbar to the parameter value
-            cv2.setTrackbarPos(param, "Image", params[param])
 
+        def update_display():
+            nonlocal image
+            # Create display image with parameter info
+            display = image.copy()
+            y = 30
+            for i, (name, value) in enumerate(params.items()):
+                color = (0, 255, 0) if param_list[i] == current_param else (255, 255, 255)
+                cv2.putText(display, f"{i+1}. {name}: {value}", (10, y), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                y += 30
+            if current_param is not None:
+                cv2.putText(display, f"New value for {current_param}: {input_value}", 
+                           (10, y+30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.imshow("Image", cv2.resize(display, (800, 600)))
 
-        # Call the function and display the image
-        # Display the processed image and fit to the window
-        image = cv2.resize(image, (800, 600), interpolation=cv2.INTER_AREA)
-        cv2.imshow("Image", image)  
+        update_display()
 
         while True:
             key = cv2.waitKey(1) & 0xFF
-            if key == 27:  # ESC key to exit
+        
+            if key == 27:  # ESC to exit
                 break
-            # Update the parameters based on the trackbar positions
-            updated = False
-            for param in params:
-                new_val = cv2.getTrackbarPos(param, "Image")
-                if new_val != captured_locals[param]:
-                    captured_locals[param] = new_val
-                    updated = True
+                
+            if current_param is None:
+                # Select parameter using number keys
+                if 49 <= key <= 57:  # 1-9 keys
+                    idx = key - 49
+                    if idx < len(param_list):
+                        current_param = param_list[idx]
+                        input_value = ''
+            else:
+                # Handle numeric input
+                if 48 <= key <= 57:  # 0-9
+                    input_value += chr(key)
+                elif key == 13:  # Enter to confirm
+                    if input_value:
+                        new_val = min(max(int(input_value), 0), 255)
+                        captured_locals[current_param] = new_val
+                        params[current_param] = new_val
+                        
+                        # Re-run function with updated params
+                        def update_tracer(frame, event, arg):
+                            if event == "line":
+                                frame.f_locals[current_param] = new_val
+                            return update_tracer
+                        
+                        sys.settrace(update_tracer)
+                        image = func(*args, **kwargs)
+                        sys.settrace(None)
+                    current_param = None
+                    input_value = ''
+                elif key == 8:  # Backspace
+                    input_value = input_value[:-1]
 
-            # Re-run the function if parameters changed
-            if updated:
-                # Update the function's variables with the new parameter values
-                def update_tracer(frame, event, arg):
-                    if event == "line":
-                        for param in params:
-                            # Update the parameter value in the function's local scope
-                            frame.f_locals[param] = captured_locals[param]
-                    return update_tracer
-                sys.settrace(update_tracer)
-                image = func(*args, **kwargs)
-                sys.settrace(None)
-                image_resized = cv2.resize(image, (800, 600), interpolation=cv2.INTER_AREA)
-                cv2.imshow("Image", image_resized)
-        # Cleanup
+            update_display()
+
         cv2.destroyAllWindows()
         return image
+
     return wrapper

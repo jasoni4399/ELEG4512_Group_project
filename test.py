@@ -2,81 +2,63 @@ import cv2
 import os
 import numpy as np
 from processors import *
-
 # make a decorator to time the function
 path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
-def test(image):
-    outputs = morphologyEx(image, kernal_size=3, threshold=145)
-    test = cv2.cvtColor(outputs, cv2.COLOR_BGR2GRAY)
-    test = cv2.bilateralFilter(test, 9, 75, 75)
-
-    lab = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
-    L_channel = lab[:, :, 0]
-
-    gamma = 2
-    gamma2 = 32
-    gamma_corrected = np.power(L_channel / 255.0, gamma) * 255
-    gamma_corrected_2 = np.power(L_channel / 255.0, gamma2) * 255
-    gamma_corrected = gamma_corrected.astype(np.uint8)
-    gamma_corrected_2 = gamma_corrected_2.astype(np.uint8)
-
-    filtered = cv2.bilateralFilter(gamma_corrected, 9, 75, 75)
-
-    sobelx = cv2.Sobel(filtered, cv2.CV_64F, 1, 0, ksize=3)
-    sobely = cv2.Sobel(filtered, cv2.CV_64F, 0, 1, ksize=3)
-    edges = cv2.magnitude(sobelx, sobely)
-
-    log_img = np.log1p(filtered.astype(np.float32))
-    log_blur = cv2.GaussianBlur(log_img, (15, 15), 10)
-    reflectance = cv2.normalize(log_img - log_blur, None, 0, 255, cv2.NORM_MINMAX)
-    reflectance = reflectance.astype(np.uint8)
-
-    combined1 = cv2.addWeighted(gamma_corrected, 0.1, gamma_corrected_2, 0.3, 0)
-    combined2 = cv2.addWeighted(combined1, 0.7, reflectance, 0.3, 0)
-    #combined2 = cv2.addWeighted(combined2, 0.9, test, 0.1, 0)
-
-    # 加強邊緣
-    sobelx = cv2.Sobel(combined2, cv2.CV_64F, 1, 0, ksize=3)
-    sobely = cv2.Sobel(combined2, cv2.CV_64F, 0, 1, ksize=3)
-    gradient = cv2.magnitude(sobelx, sobely)
-
-    # 非線性映射強化強邊緣
-    gradient_enhanced = np.power(gradient / gradient.max(), 0.5) * 255
-    gradient_enhanced = gradient_enhanced.astype(np.uint8)
-
-    # 再融合一次進原圖
-    combined3 = cv2.addWeighted(combined2, 1, gradient_enhanced, 0.9, 0)
-
-    # 用新的圖再做 edge detection
-    sobelx = cv2.Sobel(combined3, cv2.CV_64F, 1, 0, ksize=3)
-    sobely = cv2.Sobel(combined3, cv2.CV_64F, 0, 1, ksize=3)
-    edges = cv2.magnitude(sobelx, sobely)
-
-    edges_norm = cv2.normalize(edges, None, 0, 255, cv2.NORM_MINMAX)
-    edges_uint8 = edges_norm.astype(np.uint8)
-    _, thresh = cv2.threshold(edges_uint8, 50, 255, cv2.THRESH_BINARY)
-
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    output_img = image.copy()
-    for cnt in contours:
-        if cv2.contourArea(cnt) > 100:
-            cv2.drawContours(output_img, [cnt], 0, (0, 255, 0), 3)
-
-    return output_img
-
 @testing
 @process_image(image_path="hough_tranform")#file name to save the image
-def process(image):
-    #edge detection
-    param_a = 6
-    process_image = gamma_correction(image, gamma=param_a, c=1.0)
-    return process_image
- 
+def main(image):
+    #hough transform to detect lines
+    b,g, r = cv2.split(image)
+    #find b histogram for threshold
+    b_hist = cv2.calcHist([b], [0], None, [256], [0, 256])
+    g_hist = cv2.calcHist([g], [0], None, [256], [0, 256])
+    r_hist = cv2.calcHist([r], [0], None, [256], [0, 256])
+    #find the peak of the histogram
+    b_peak = np.argmax(b_hist)
+    g_peak = np.argmax(g_hist)
+    r_peak = np.argmax(r_hist)
+    #find the threshold for the histogram
+    b_threshold = b_peak + 50
+    g_threshold = g_peak + 50
+    r_threshold = r_peak + 50
+    print("b_peak: ", b_peak, "g_peak: ", g_peak, "r_peak: ", r_peak)
+    print("b_threshold: ", b_threshold, "g_threshold: ", g_threshold, "r_threshold: ", r_threshold)
+    #threshold the image
+    _, b = cv2.threshold(b, b_threshold, 255, cv2.THRESH_BINARY)
+    _, g = cv2.threshold(g, g_threshold, 255, cv2.THRESH_BINARY)
+    _, r = cv2.threshold(r, r_threshold, 255, cv2.THRESH_BINARY)
+    #find the edges of the image by using the threshold for canny and test the threshold of the histogram
+    param_b_threshold1 = 50
+    param_b_threshold2 = 150
+    param_g_threshold1 = 50
+    param_g_threshold2 = 150
+    param_r_threshold1 = 50
+    param_r_threshold2 = 150
+    b_edges = cv2.Canny(b, param_b_threshold1, param_b_threshold2)
+    g_edges = cv2.Canny(g, param_g_threshold1, param_g_threshold2)
+    r_edges = cv2.Canny(r, param_r_threshold1, param_r_threshold2)
+    #find the lines of the image by using the hough transform
+    b_lines = cv2.HoughLinesP(b_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
+    g_lines = cv2.HoughLinesP(g_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
+    r_lines = cv2.HoughLinesP(r_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
+
+    # Draw lines on the image
+    if b_lines is not None:
+        for line in b_lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+    if g_lines is not None:
+        for line in g_lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    if r_lines is not None:
+        for line in r_lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+    return image
+
 if __name__ == "__main__":
-    process(image)
-
-
-
+    main(image)
