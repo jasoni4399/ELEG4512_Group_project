@@ -67,6 +67,7 @@ def test(image):
 
     return output_img
 
+@testing
 @process_image(image_path="test")#file name to save the image
 def process(image):
     #edge detection

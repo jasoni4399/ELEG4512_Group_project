@@ -24,4 +24,26 @@ def process_image(image_path):
         return run
     return wrapper
 
-# a window for debugging and testing every set parameter of the function
+#a decorator for show a window with side bar 
+#to test every variable using in the function that 
+#start with "param_" for testing
+def testing(func):
+    def wrapper(*args, **kwargs):
+        # Create a window with a trackbar for each parameter
+        cv2.namedWindow("Image")
+        params = {k: v for k, v in kwargs.items() if k.startswith("param_")}
+        for param in params:
+            cv2.createTrackbar(param, "Image", 0, 255, lambda x: None)
+
+        # Call the function and display the image
+        image = func(*args, **kwargs)
+        cv2.imshow("Image", image)
+
+        while True:
+            key = cv2.waitKey(1) & 0xFF
+            if key == 27:  # ESC key to exit
+                break
+
+        cv2.destroyAllWindows()
+        return image
+    return wrapper
