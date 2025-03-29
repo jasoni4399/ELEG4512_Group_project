@@ -8,6 +8,7 @@ def sobel_edge_detection(
     dx: int = 1,
     dy: int = 1,
     normalize: bool = True,
+    uint8: bool = True,
     show_result: bool = False,
     window_size: tuple[int, int] = (10, 6),
     dpi: int = 100 
@@ -22,6 +23,9 @@ def sobel_edge_detection(
     
     if normalize:
         edges = cv2.normalize(edges, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+    if uint8:
+        edges = edges.astype(np.uint8)
     
     if show_result:
         display(edges, title='Sobel Edge Detection', window_size=window_size, dpi=dpi)
