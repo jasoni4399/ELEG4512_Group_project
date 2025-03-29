@@ -6,7 +6,7 @@ from processors import *
 path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
-@process_image(image_path="frequency_domain_separation")#file name to save the image
+@process_image(image_path="combined2")#file name to save the image
 def main(image):
 
     outputs = generate_reflection_mask(image, kernal_size=3, threshold=145)
@@ -51,8 +51,8 @@ def main(image):
     combined3 = cv2.addWeighted(combined2, 1, gradient_enhanced, 0.9, 0)
 
     # 用新的圖再做 edge detection
-    sobelx = cv2.Sobel(combined3, cv2.CV_64F, 1, 0, ksize=3)
-    sobely = cv2.Sobel(combined3, cv2.CV_64F, 0, 1, ksize=3)
+    sobelx = cv2.Sobel(combined2, cv2.CV_64F, 1, 0, ksize=3)
+    sobely = cv2.Sobel(combined2, cv2.CV_64F, 0, 1, ksize=3)
     edges = cv2.magnitude(sobelx, sobely)
 
     edges_norm = cv2.normalize(edges, None, 0, 255, cv2.NORM_MINMAX)
