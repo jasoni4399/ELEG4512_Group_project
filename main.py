@@ -3,7 +3,7 @@ import os
 import numpy as np
 from processors import *
 # make a decorator to time the function
-path = "inputs/blur_noisey_photo.jpg"
+path = "inputs/test3.jpg"
 image = cv2.imread(path)
 
 @process_image(image_path="frequency_domain_separation")#file name to save the image
