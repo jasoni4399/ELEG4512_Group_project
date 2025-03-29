@@ -11,6 +11,8 @@ def main(image):
 
     outputs = generate_reflection_mask(image, kernal_size=3, threshold=145)
     test = cv2.cvtColor(outputs, cv2.COLOR_BGR2GRAY)
+    test = cv2.bilateralFilter(test, 9, 75, 75)
+
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
     L_channel = lab[:, :, 0]
 
@@ -32,8 +34,9 @@ def main(image):
     reflectance = cv2.normalize(log_img - log_blur, None, 0, 255, cv2.NORM_MINMAX)
     reflectance = reflectance.astype(np.uint8)
 
-    combined1 = cv2.addWeighted(gamma_corrected, 0.4, gamma_corrected_2, 0.6, 0)
+    combined1 = cv2.addWeighted(gamma_corrected, 0.1, gamma_corrected_2, 0.3, 0)
     combined2 = cv2.addWeighted(combined1, 0.7, reflectance, 0.3, 0)
+    #combined2 = cv2.addWeighted(combined2, 0.9, test, 0.1, 0)
 
     # 加強邊緣
     sobelx = cv2.Sobel(combined2, cv2.CV_64F, 1, 0, ksize=3)
@@ -45,7 +48,7 @@ def main(image):
     gradient_enhanced = gradient_enhanced.astype(np.uint8)
 
     # 再融合一次進原圖
-    combined3 = cv2.addWeighted(combined2, 1, gradient_enhanced, 1, 0)
+    combined3 = cv2.addWeighted(combined2, 1, gradient_enhanced, 0.9, 0)
 
     # 用新的圖再做 edge detection
     sobelx = cv2.Sobel(combined3, cv2.CV_64F, 1, 0, ksize=3)
@@ -61,7 +64,7 @@ def main(image):
     output_img = image.copy()
     for cnt in contours:
         if cv2.contourArea(cnt) > 100:
-            cv2.drawContours(output_img, [cnt], 0, (0, 255, 0), 2)
+            cv2.drawContours(output_img, [cnt], 0, (0, 255, 0), 3)
 
     return output_img
 
