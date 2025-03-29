@@ -1,21 +1,11 @@
-__all__ = ["remove_reflection",
-            "save_image",
-            "process_image",
-            "gamma_correction",
-            "laplacian_filter",
-            "rgb_laplacian_filter",
-            "histogram_equalization",
-            "rgb_histogram_equalization",
-            "adaptive_histogram_equalization",
-            "rgb_adaptive_histogram_equalization"
-            ]
 
 from .remove_reflection import remove_reflection_test as remove_reflection
 from .gamma_correction import gamma_correction
 from .laplacian_filtering import laplacian_filter as laplacian_filter
 from .laplacian_filtering import rgb_laplacian_filter as rgb_laplacian_filter
-from .histogram_equalization import histogram_equalization as histogram_equalization
 from .histogram_equalization import *
+from .edge_detection import *
+from .morphologyEx import *
 
 import cv2
 import os
@@ -33,3 +23,5 @@ def process_image(image_path):
             return processed_image
         return run
     return wrapper
+
+# a window for debugging and testing every set parameter of the function

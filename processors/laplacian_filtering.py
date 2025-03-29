@@ -5,7 +5,7 @@ def laplacian_filter(image, kernel_size=3, scale=1, delta=0, border_type=cv2.BOR
 
     if len(image.shape) == 3:
         #RGB image
-        gray = cv2.cvtColor(image,cv2.COLORR)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     else:
         gray = image.copy()
     

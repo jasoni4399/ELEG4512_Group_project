@@ -4,13 +4,14 @@ import numpy as np
 import os
 
 def histogram_equalization(image):
+    
     if len(image.shape) == 3:
         #RGB image
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     else:
         gray = image.copy()
-    
-    equalized = cv2.equalizeHist(gray/255.0) * 255.0
+        
+    equalized = cv2.equalizeHist(gray)
     
     return equalized
 
