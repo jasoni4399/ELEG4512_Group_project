@@ -6,6 +6,7 @@ from processors import *
 path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
+@testing
 @process_image(image_path="hough_tranform")#file name to save the image
 def main(image):
     #hough transform to detect lines
@@ -29,7 +30,15 @@ def main(image):
     _, g = cv2.threshold(g, g_threshold, 255, cv2.THRESH_BINARY)
     _, r = cv2.threshold(r, r_threshold, 255, cv2.THRESH_BINARY)
     #find the edges of the image by using the threshold for canny and test the threshold of the histogram
-    b_edges = cv2.Canny(b, 50, 150)
+    param_b_threshold1 = 50
+    param_b_threshold2 = 150
+    param_g_threshold1 = 50
+    param_g_threshold2 = 150
+    param_r_threshold1 = 50
+    param_r_threshold2 = 150
+    b_edges = cv2.Canny(b, param_b_threshold1, param_b_threshold2)
+    g_edges = cv2.Canny(g, param_g_threshold1, param_g_threshold2)
+    r_edges = cv2.Canny(r, param_r_threshold1, param_r_threshold2)
     #find the lines of the image by using the hough transform
     b_lines = cv2.HoughLinesP(b_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
     g_lines = cv2.HoughLinesP(g_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
