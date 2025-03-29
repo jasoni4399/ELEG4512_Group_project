@@ -28,10 +28,8 @@ def main(image):
     _, b = cv2.threshold(b, b_threshold, 255, cv2.THRESH_BINARY)
     _, g = cv2.threshold(g, g_threshold, 255, cv2.THRESH_BINARY)
     _, r = cv2.threshold(r, r_threshold, 255, cv2.THRESH_BINARY)
-    #find the edges of the image by using the threshold for canny
-    b_edges = cv2.Canny(b, 50, b_peak-50, apertureSize=3)
-    g_edges = cv2.Canny(g, 50, g_peak-50, apertureSize=3)
-    r_edges = cv2.Canny(r, 50, r_peak-50, apertureSize=3)
+    #find the edges of the image by using the threshold for canny and test the threshold of the histogram
+    b_edges = cv2.Canny(b, 50, 150)
     #find the lines of the image by using the hough transform
     b_lines = cv2.HoughLinesP(b_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
     g_lines = cv2.HoughLinesP(g_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)

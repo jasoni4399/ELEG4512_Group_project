@@ -9,6 +9,8 @@ from .morphologyEx import *
 
 import cv2
 import os
+import numpy as np
+import sys
 
 def save_image(image, path):
     output_path = os.path.join("outputs", path+".jpg")
@@ -24,26 +26,78 @@ def process_image(image_path):
         return run
     return wrapper
 
+
 #a decorator for show a window with side bar 
-#to test every variable using in the function that 
-#start with "param_" for testing
+#can auto find all local vaiables of the function name start with "param_"
+#capture local variables and create trackbars for them
+#so that user can change the parameters in real time
 def testing(func):
     def wrapper(*args, **kwargs):
+        # Set the function to be traced
+        # Get the local variables of the function
+        captured_locals = {}  # Use a mutable object to avoid scoping issues
+
+        # Define the tracer function
+        def tracer(frame, event, arg):
+            if event == "return":
+                # Capture the locals when the function returns
+                captured_locals.update(frame.f_locals.copy())
+            return tracer  # Return itself to keep tracing active
+
+        # Activate the tracer
+        sys.settrace(tracer)
+        try:
+            image = func(*args, **kwargs)
+        finally:
+            sys.settrace(None)  # Ensure tracing is disabled
+        # Find parameters starting with "param_"
+        params = {k: v for k, v in captured_locals.items() if k.startswith("param_")}
         # Create a window with a trackbar for each parameter
         cv2.namedWindow("Image")
-        params = {k: v for k, v in kwargs.items() if k.startswith("param_")}
+        #set screen size
+        cv2.resizeWindow("Image", 800, 600)
+        #allow user change window size
+        cv2.resizeWindow("Image", 800, 600)
+        cv2.setWindowProperty("Image", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_KEEPRATIO)
         for param in params:
+            # Create a trackbar for each parameter
             cv2.createTrackbar(param, "Image", 0, 255, lambda x: None)
+            # Set the initial value of the trackbar to the parameter value
+            cv2.setTrackbarPos(param, "Image", params[param])
+
 
         # Call the function and display the image
-        image = func(*args, **kwargs)
-        cv2.imshow("Image", image)
+        # Display the processed image and fit to the window
+        image = cv2.resize(image, (800, 600), interpolation=cv2.INTER_AREA)
+        cv2.imshow("Image", image)  
 
         while True:
             key = cv2.waitKey(1) & 0xFF
             if key == 27:  # ESC key to exit
                 break
+            # Update the parameters based on the trackbar positions
+            updated = False
+            for param in params:
+                new_val = cv2.getTrackbarPos(param, "Image")
+                if new_val != captured_locals[param]:
+                    captured_locals[param] = new_val
+                    updated = True
 
+            # Re-run the function if parameters changed
+            if updated:
+                # Update the function's variables with the new parameter values
+                def update_tracer(frame, event, arg):
+                    if event == "line":
+                        for param in params:
+                            # Update the parameter value in the function's local scope
+                            frame.f_locals[param] = captured_locals[param]
+                    return update_tracer
+                sys.settrace(update_tracer)
+                image = func(*args, **kwargs)
+                sys.settrace(None)
+                image_resized = cv2.resize(image, (800, 600), interpolation=cv2.INTER_AREA)
+                cv2.imshow("Image", image_resized)
+        # Cleanup
         cv2.destroyAllWindows()
         return image
     return wrapper

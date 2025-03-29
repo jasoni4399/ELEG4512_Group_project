@@ -68,13 +68,15 @@ def test(image):
     return output_img
 
 @testing
-@process_image(image_path="test")#file name to save the image
+@process_image(image_path="hough_tranform")#file name to save the image
 def process(image):
     #edge detection
-    process_image = test(image)
+    param_a = 6
+    process_image = gamma_correction(image, gamma=param_a, c=1.0)
     return process_image
  
 if __name__ == "__main__":
     process(image)
+
 
 
