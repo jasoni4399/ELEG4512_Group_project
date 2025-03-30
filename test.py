@@ -1,5 +1,4 @@
 import cv2
-import os
 import numpy as np
 from processors import *
 # make a decorator to time the function
