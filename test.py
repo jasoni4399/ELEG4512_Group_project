@@ -6,58 +6,25 @@ path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
 @testing
-@process_image(image_path="hough_tranform")#file name to save the image
 def main(image):
-    #hough transform to detect lines
-    b,g, r = cv2.split(image)
-    #find b histogram for threshold
-    b_hist = cv2.calcHist([b], [0], None, [256], [0, 256])
-    g_hist = cv2.calcHist([g], [0], None, [256], [0, 256])
-    r_hist = cv2.calcHist([r], [0], None, [256], [0, 256])
-    #find the peak of the histogram
-    b_peak = np.argmax(b_hist)
-    g_peak = np.argmax(g_hist)
-    r_peak = np.argmax(r_hist)
-    #find the threshold for the histogram
-    b_threshold = b_peak + 50
-    g_threshold = g_peak + 50
-    r_threshold = r_peak + 50
-    print("b_peak: ", b_peak, "g_peak: ", g_peak, "r_peak: ", r_peak)
-    print("b_threshold: ", b_threshold, "g_threshold: ", g_threshold, "r_threshold: ", r_threshold)
-    #threshold the image
-    _, b = cv2.threshold(b, b_threshold, 255, cv2.THRESH_BINARY)
-    _, g = cv2.threshold(g, g_threshold, 255, cv2.THRESH_BINARY)
-    _, r = cv2.threshold(r, r_threshold, 255, cv2.THRESH_BINARY)
-    #find the edges of the image by using the threshold for canny and test the threshold of the histogram
-    param_b_threshold1 = 50
-    param_b_threshold2 = 150
-    param_g_threshold1 = 50
-    param_g_threshold2 = 150
-    param_r_threshold1 = 50
-    param_r_threshold2 = 150
-    b_edges = cv2.Canny(b, param_b_threshold1, param_b_threshold2)
-    g_edges = cv2.Canny(g, param_g_threshold1, param_g_threshold2)
-    r_edges = cv2.Canny(r, param_r_threshold1, param_r_threshold2)
-    #find the lines of the image by using the hough transform
-    b_lines = cv2.HoughLinesP(b_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
-    g_lines = cv2.HoughLinesP(g_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
-    r_lines = cv2.HoughLinesP(r_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=10)
-
-    # Draw lines on the image
-    if b_lines is not None:
-        for line in b_lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-    if g_lines is not None:
-        for line in g_lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    if r_lines is not None:
-        for line in r_lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-
-    return image
+    #use image as weighted mask for the original image
+    param_weighted = 1
+    param_weight_base=10
+    #translate the weighted mask to the image
+    param_x = 1
+    param_translatey = 0
+    #create the weighted mask
+    weidhted_mask = image.copy()
+    weidhted_mask = cv2.multiply(weidhted_mask, param_weighted/param_weight_base)
+    #translate the weidhted_mask by param_translat_x and param_translat_y
+    print(image.shape)
+    height, width = image.shape[:2] 
+    print("translate_x: ", 255*param_x, "translate_y: ", param_translatey*height/255)
+    T = np.float32([[1, 0, param_x*255], [0, 1, param_translatey*height/255]]) 
+    translated_weighted_image = cv2.warpAffine(weidhted_mask,T,(width, height))
+    #mask the image with the weighted mask
+    masked_image = cv2.addWeighted(image, 1, translated_weighted_image, -1, 0)
+    return translated_weighted_image
 
 if __name__ == "__main__":
     main(image)
