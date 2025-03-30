@@ -66,7 +66,7 @@ def main(image):
         if cv2.contourArea(cnt) > 100:
             cv2.drawContours(output_img, [cnt], 0, (0, 255, 0), 3)
 
-    return output_img
+    return combined2
 
 if __name__ == "__main__":
     main(image)

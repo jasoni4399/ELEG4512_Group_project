@@ -26,9 +26,10 @@ from .utils.display import display
 
 import cv2
 import os
+import sys
 
 def save_image(image, path):
-    output_path = os.path.join("outputs", path+".jpg")
+    output_path = os.path.join("outputs", path+".png")
     cv2.imwrite(output_path, image)
     print(f"Processed image saved to: {output_path}")
 
