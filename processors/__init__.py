@@ -1,4 +1,4 @@
-__all__ = ["save_image", "process_image","gamma_correction", "laplacian", "histogram_normalization", 
+__all__ = ["save_image", "process_image","testing","gamma_correction", "laplacian", "histogram_normalization", 
            "contrast_stretching", "average_filter", "gaussian_blurring", "frequency_domain_separation",
            "generate_reflection_mask", "multi_scale_inpainting", "median_filter_2d", "dilation", "erosion",
            "sobel", "display", "LoG", "canny", "morphologyEx", "fft"] 
