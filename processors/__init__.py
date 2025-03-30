@@ -1,28 +1,16 @@
-__all__ = ["save_image", "process_image","testing","gamma_correction", "laplacian", "histogram_normalization", 
-           "contrast_stretching", "average_filter", "gaussian_blurring", "frequency_domain_separation",
-           "generate_reflection_mask", "multi_scale_inpainting", "median_filter_2d", "dilation", "erosion",
-           "sobel", "display", "LoG", "canny", "morphologyEx", "fft"] 
+__all__ = ["save_image", "process_image","testing","gamma_correction", "gamma_clahe", "generate_reflection_mask", 
+           "edge_based_segmentation", "filter_draw_contours", "display"] 
 
-from .edge_detectors.laplacian_edge_detection import laplacian_edge_detection as laplacian
-from .edge_detectors.sobel_edge_detection import sobel_edge_detection as sobel
-from .edge_detectors.log_edge_detection import log_edge_detection as LoG
-from .edge_detectors.canny_edge_detection import canny_edge_detection as canny
-from .edge_detectors.morphological_gradient import morphological_gradient as morphologyEx
-from .edge_detectors.fourier_highpass_filter import fourier_highpass_filter as fft
+from .contrast.gamma_correction import gamma_correction
+from .contrast.gamma_clahe import gamma_clahe
 
-from .gamma_correction import gamma_correction
+from .reflection.reflection_mask import generate_reflection_mask
 
-from .histogram_normalization import histogram_normalization
-from .contrast_stretching import contrast_stretching
-from .average_filtering import average_filter
-from .gaussian_blurring import gaussian_blurring
-from .freq_domain_separation import frequency_domain_separation as frequency_domain_separation
-from .reflection_mask import generate_reflection_mask as generate_reflection_mask
-from .multi_scale_inpainting import multi_scale_inpainting
-from .median_filtering import median_filter_2d as median_filter_2d
-from .dilation import dilation
-from .erosion import erosion
+from .segmentation.edge_based_segmentation import edge_based_segmentation
+
+from .utils.filter_draw_contours import  filter_draw_contours
 from .utils.display import display
+
 
 import cv2
 import os
