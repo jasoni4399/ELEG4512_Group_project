@@ -31,4 +31,4 @@ def generate_reflection_mask(reflection_image, kernel_size=3, threshold=220):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     edges_dilated = cv2.dilate(edges, kernel, iterations=3)
     
-    return edges_dilated
+    return mask

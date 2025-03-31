@@ -6,7 +6,7 @@ from processors import *
 path = "inputs/blur_noisey_photo.jpg"
 image = cv2.imread(path)
 
-@process_image(image_path="final_result")#file name to save the image
+@process_image(image_path="output1")#file name to save the image
 def main(image):
     # Enhance the edge of object by observing the contrast of it and the environment
     enhanced1 = gamma_clahe(image, 12, 32)
@@ -29,7 +29,7 @@ def main(image):
     output_img = image.copy()
     output_img[combined1 == 255] = [0, 255, 0] 
 
-    return output_img
+    return output1
 
 if __name__ == "__main__":
     main(image)
