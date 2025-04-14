@@ -15,6 +15,7 @@ def generate_reflection_mask(reflection_image, kernel_size=3, threshold=220):
     sobelx = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=1)
     sobely = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=1)
     gradient = cv2.magnitude(sobelx, sobely)
+
     gradient_enhanced = np.power(gradient / gradient.max(), 0.5) * 255
     gradient_enhanced = gradient_enhanced.astype(np.uint8)
 

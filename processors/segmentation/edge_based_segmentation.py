@@ -33,13 +33,10 @@ def edge_based_segmentation(
 
     # Step 3: Gaussian blurring
     blurred = cv2.GaussianBlur(gradient_enhanced, (5, 5), 0)
-
     # Step 4: Canny edge detection (requires uint8 input)
     edges = cv2.Canny(blurred, canny_low, canny_high)
-
     # Step 5: Gaussian blurring
     blurred = cv2.GaussianBlur(edges, (3, 3), 0)
-
     # Step 6: Dilation
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     edges_dilated = cv2.dilate(edges, kernel, iterations=dilate_iterations)
@@ -51,3 +48,4 @@ def edge_based_segmentation(
         return edges_dilated.astype(output_dtype) / 255.0
     else:
         raise ValueError("output_dtype must be uint8, float32, or float64.")
+    
